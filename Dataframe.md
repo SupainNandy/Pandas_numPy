@@ -1,97 +1,22 @@
-# Pandas: Series vs. DataFrame (Definitions, Differences & Examples)
+# Pandas: Comprehensive DataFrame Guide
 
-This document provides a comprehensive technical comparison between the two core data structures in the Pandas library: **Series** and **DataFrame**.
-
----
-
-## 1. Definitions
-
-### What is a Pandas Series?
-A **Series** is a one-dimensional (1D) labeled array capable of holding any data type (integers, strings, floating-point numbers, Python objects, etc.).
-* It has only **one axis**: the **index** (row labels).
-* Every element in a Series shares the same underlying data type (`dtype`).
-* Think of a Series as a **single column** in a spreadsheet or a SQL table.
-
-### What is a Pandas DataFrame?
-A **DataFrame** is a two-dimensional (2D), size-mutable, tabular data structure with labeled axes (rows and columns).
-* It has **two axes**:
-  * **Axis 0:** Rows (identified by row index labels).
-  * **Axis 1:** Columns (identified by column header labels).
-* Each column in a DataFrame can hold a different data type (**heterogeneous**): one column can contain strings, another integers, and another floats.
-* Think of a DataFrame as a **complete spreadsheet table** or a SQL table.
-
-### The Fundamental Relationship
-The core architectural connection between the two structures is:
-> **A DataFrame is essentially an aligned collection of Series objects sharing a common index.**
-When you extract a single column from a DataFrame, it returns a `Series`. Conversely, when you align multiple `Series` along a shared index, they form a `DataFrame`.
+This document provides a complete technical guide to Pandas **DataFrames**, covering everything implemented and practiced in `dataframe.py`.
 
 ---
 
-## 2. Visual Representation
+## 1. What is a DataFrame?
 
-```
-      PANDAS SERIES (1D)                       PANDAS DATAFRAME (2D)
-      
-         Index    Data                          Index     Col 0       Col 1       Col 2
-        +-----+  +----+                        +-----+  +---------+ +-------+ +----------+
-        |  0  |  | 25 |                        |  0  |  |  Alice  | |   25  | | New York |
-        |  1  |  | 30 |                        |  1  |  |   Bob   | |   30  | |    LA    |
-        |  2  |  | 35 |                        |  2  |  | Charlie | |   35  | | Chicago  |
-        +-----+  +----+                        +-----+  +---------+ +-------+ +----------+
-        dtype: int64                                       Series 1    Series 2   Series 3
-                                                        (object)     (int64)    (object)
-```
+A **DataFrame** is a two-dimensional (2D), size-mutable tabular data structure with labeled axes (rows and columns).
+* **Axis 0 (Rows):** Vertical axis represented by row index labels.
+* **Axis 1 (Columns):** Horizontal axis represented by column header names.
+* **Heterogeneous Data:** Different columns can hold different data types (`int64`, `float64`, `object`/string, `bool`, etc.).
 
 ---
 
-## 3. Key Differences: Series vs. DataFrame
+## 2. DataFrame Creation Methods
 
-| Feature | Pandas Series | Pandas DataFrame |
-| :--- | :--- | :--- |
-| **Dimensionality** | 1-Dimensional (1D) | 2-Dimensional (2D) |
-| **Visual Structure** | Single column with an index | Tabular grid of rows and columns |
-| **Axes** | 1 axis: `index` (Axis 0) | 2 axes: `index` (Axis 0) and `columns` (Axis 1) |
-| **Data Homogeneity** | Homogeneous (single data type per Series) | Heterogeneous (columns can hold different data types) |
-| **Attribute `.shape`** | Returns tuple with 1 element: `(n,)` | Returns tuple with 2 elements: `(rows, cols)` |
-| **Attribute `.ndim`** | Always `1` | Always `2` |
-| **Size Mutability** | Size is immutable (cannot add elements in-place without returning a new object) | Size is mutable (columns and rows can be inserted or deleted dynamically) |
-| **Extraction Result** | Extracting a single element returns a scalar | Extracting a single column returns a `Series` |
-
----
-
-## 4. Practical Code Examples
-
-### Example 1: Creating a Series (1D)
-
-```python
-import pandas as pd
-
-# Creating a Series representing Age
-ages = pd.Series([25, 30, 35, 40], name="Age")
-
-print(ages)
-print("Type:", type(ages))
-print("Shape:", ages.shape)
-print("Dimensions:", ages.ndim)
-```
-
-#### Output:
-```text
-0    25
-1    30
-2    35
-3    40
-Name: Age, dtype: int64
-Type: <class 'pandas.core.series.Series'>
-Shape: (4,)
-Dimensions: 1
-```
-
----
-
-### Example 2: Creating a DataFrame (2D)
-
-Using the dataset from `dataframe.py`:
+### Method A: Creating from a Dictionary of Lists
+When passing a dictionary, the dictionary **keys** become the column headers, and the list values become the column entries.
 
 ```python
 import pandas as pd
@@ -104,11 +29,7 @@ data = {
 }
 
 df = pd.DataFrame(data)
-
 print(df)
-print("Type:", type(df))
-print("Shape:", df.shape)
-print("Dimensions:", df.ndim)
 ```
 
 #### Output:
@@ -118,74 +39,273 @@ print("Dimensions:", df.ndim)
 1      Bob   30  Los Angeles   80000
 2  Charlie   35      Chicago   90000
 3    David   40      Houston  100000
-
-Type: <class 'pandas.core.frame.DataFrame'>
-Shape: (4, 4)
-Dimensions: 2
 ```
 
 ---
 
-### Example 3: Extracting a Column from DataFrame (Proving it is a Series)
-
-When you select a single column from a DataFrame, Pandas returns that column as a `Series`:
+### Method B: Creating from a 2D Nested List with Custom Column Names
+You can pass raw row data as a nested list and explicitly provide column names using the `columns` parameter.
 
 ```python
-age_column = df["Age"]
+data_list = [
+    ['jhon', 25, 'New York', 70000],
+    ['Bob', 30, 'Los Angeles', 80000],
+    ['Charlie', 35, 'Chicago', 90000],
+    ['David', 40, 'Houston', 100000]
+]
 
-print(age_column)
-print("Data type of extracted column:", type(age_column))
+columns = ['Name', 'Age', 'City', 'Salary']
+
+df2 = pd.DataFrame(data_list, columns=columns)
+print(df2)
 ```
 
 #### Output:
 ```text
-0    25
-1    30
-2    35
-3    40
-Name: Age, dtype: int64
-Data type of extracted column: <class 'pandas.core.series.Series'>
+      Name  Age         City  Salary
+0     jhon   25     New York   70000
+1      Bob   30  Los Angeles   80000
+2  Charlie   35      Chicago   90000
+3    David   40      Houston  100000
 ```
-
-> **Important Syntax Note:**
-> * `df["Age"]` (single brackets) returns a **Series** (`1D`).
-> * `df[["Age"]]` (double brackets) returns a **DataFrame** with a single column (`2D`).
 
 ---
 
-### Example 4: Constructing a DataFrame from Multiple Individual Series
+## 3. Column Selection and Indexing
 
-Since a DataFrame is a collection of Series, you can combine separate Series into a DataFrame:
+### A. Selecting a Single Column (Returns a Series)
+Using single square brackets returns a 1-dimensional `pd.Series`:
 
 ```python
-names = pd.Series(["Alice", "Bob", "Charlie"])
-scores = pd.Series([85, 92, 78])
-
-# Combining multiple Series into a dictionary
-student_df = pd.DataFrame({
-    "Student_Name": names,
-    "Score": scores
-})
-
-print(student_df)
+print(df2['Name'])
 ```
 
 #### Output:
 ```text
-  Student_Name  Score
-0        Alice     85
-1          Bob     92
-2      Charlie     78
+0       jhon
+1        Bob
+2    Charlie
+3      David
+Name: Name, dtype: object
+```
+
+### B. Selecting Multiple Columns (Returns a DataFrame)
+To extract multiple columns, pass a Python list of column names inside double brackets `[[ ... ]]`:
+
+```python
+print(df2[['Name', 'Age']])
+```
+
+#### Output:
+```text
+      Name  Age
+0     jhon   25
+1      Bob   30
+2  Charlie   35
+3    David   40
+```
+
+> **Important Rule:**
+> * `df['Column']` -> Returns a **1D Series**.
+> * `df[['Column']]` or `df[['Col1', 'Col2']]` -> Returns a **2D DataFrame**.
+
+---
+
+## 4. Column Manipulation: Adding and Dropping Columns
+
+### A. Creating a New Column
+You can assign a list or array directly to a new column name. The list length must equal the number of rows in the DataFrame:
+
+```python
+df2["Desgnation"] = ["Engineer", "Manager", "Analyst", "Director"]
+print(df2)
+```
+
+#### Output:
+```text
+      Name  Age         City  Salary Desgnation
+0     jhon   25     New York   70000   Engineer
+1      Bob   30  Los Angeles   80000    Manager
+2  Charlie   35      Chicago   90000    Analyst
+3    David   40      Houston  100000   Director
+```
+
+### B. Dropping a Column with `.drop()`
+To delete a column, use the `.drop()` method:
+
+```python
+df2.drop("Desgnation", axis=1, inplace=True)
+print(df2)
+```
+
+#### Key Parameters Explained:
+* **`axis=1` vs `axis=0`:**
+  * `axis=1` (or `axis='columns'`): Refers to the horizontal axis (drops columns).
+  * `axis=0` (or `axis='index'`): Refers to the vertical axis (drops rows). Default is `axis=0`.
+* **`inplace=True` vs `inplace=False`:**
+  * `inplace=False` (default): Does not change the original DataFrame. It creates and returns a new copy without the dropped column.
+  * `inplace=True`: Directly mutates the existing DataFrame in memory and returns `None`.
+
+---
+
+## 5. Row Selection Using `.loc[]`
+
+The `.loc[]` accessor is label-based, used to select rows and columns by index labels or boolean masks.
+
+### A. Selecting a Single Row (Returns a Series)
+```python
+print(df2.loc[0])
+```
+
+#### Output:
+```text
+Name          jhon
+Age             25
+City      New York
+Salary       70000
+Name: 0, dtype: object
+```
+* Notice that selecting a single row returns a **Series**, where column names become the index of the Series.
+
+### B. Selecting Multiple Rows (Returns a DataFrame)
+Pass a list of row labels to retrieve multiple rows:
+
+```python
+print(df2.loc[[0, 1]])
+```
+
+#### Output:
+```text
+   Name  Age         City  Salary
+0  jhon   25     New York   70000
+1   Bob   30  Los Angeles   80000
 ```
 
 ---
 
-## 5. Summary: When to Use Which?
+## 6. Adding New Rows to a DataFrame
 
-* **Use a Series when:**
-  * You are working with a single sequence or column of values (e.g., daily temperature readings, closing stock prices of one stock, student grades).
-  * You need 1D label-based lookups.
+There are two primary ways to add new rows:
 
-* **Use a DataFrame when:**
-  * You have multi-attribute data representing real-world entities (e.g., a customer database with Name, Age, Email, Order History).
-  * You need to perform multi-column filtering, aggregations, joins, or prepare datasets for Machine Learning models.
+### Method 1: Using `.loc[]` with an Index Identifier
+```python
+# Inserting row at explicit index 4
+df2.loc[4] = ['Emma', 28, 'Boston', 85000]
+
+# Auto-indexing: using len(df2) to append to the end
+df2.loc[len(df2)] = ['Frank', 32, 'Seattle', 95000]
+```
+
+### Method 2: Modern Concatenation (`pd.concat`)
+*(Note: `df.append()` was deprecated and removed in recent Pandas releases. Use `pd.concat()` instead).*
+
+```python
+new_row = pd.DataFrame([{
+    'Name': 'Grace',
+    'Age': 29,
+    'City': 'Miami',
+    'Salary': 88000
+}])
+
+df2 = pd.concat([df2, new_row], ignore_index=True)
+```
+
+---
+
+## 7. Selecting Subsets of Rows and Columns
+
+You can slice both rows and columns simultaneously.
+
+### Approach A: Chained Indexing
+```python
+print(df2.loc[[0, 1]][["City", "Salary"]])
+```
+
+### Approach B: Standard 2D `.loc[rows, columns]` Syntax (Preferred)
+In professional code, passing both row and column targets in a single `.loc[]` call is cleaner and avoids chained assignment warnings:
+
+```python
+print(df2.loc[[0, 1], ["City", "Salary"]])
+```
+
+#### Output:
+```text
+          City  Salary
+0     New York   70000
+1  Los Angeles   80000
+```
+
+---
+
+## 8. Conditional Selection & Filtering (Boolean Masking)
+
+Conditional selection allows you to filter rows based on logical conditions applied to column values.
+
+### How Boolean Masking Works Internally
+When you evaluate an expression like `df2["Age"] > 30`, Pandas generates a Boolean Series:
+```text
+0    False
+1    False
+2     True
+3     True
+Name: Age, dtype: bool
+```
+Passing this Boolean Series back into `df2[...]` extracts only the rows where the condition evaluated to `True`.
+
+---
+
+### Case 1: Single Condition
+**Problem:** Select all rows where `Age` is greater than 30.
+
+```python
+print(df2[df2["Age"] > 30])
+```
+
+#### Output:
+```text
+      Name  Age     City  Salary
+2  Charlie   35  Chicago   90000
+3    David   40  Houston  100000
+```
+
+---
+
+### Case 2: Compound Conditions (Bitwise Logical Operators)
+**Problem:** Select rows where `Age` is greater than 30 **AND** `City` is Chicago.
+
+```python
+print(df2[(df2["Age"] > 30) & (df2["City"] == "Chicago")])
+```
+
+#### Output:
+```text
+      Name  Age     City  Salary
+2  Charlie   35  Chicago   90000
+```
+
+#### Critical Rules for Compound Conditions in Pandas:
+1. **Always wrap each condition in parentheses `(...)`:**
+   In Python, bitwise operators (`&`, `|`, `~`) have higher operator precedence than comparison operators (`>`, `<`, `==`). Writing `df2["Age"] > 30 & df2["City"] == "Chicago"` causes a syntax/evaluation error. Parentheses ensure conditions evaluate before the logical operator.
+2. **Use bitwise operators instead of Python keywords:**
+   * Use `&` instead of `and`
+   * Use `|` instead of `or`
+   * Use `~` instead of `not`
+   *(Python keywords evaluate truthiness on the whole container, whereas bitwise operators perform element-wise logical operations across the Series).*
+
+---
+
+## 9. Quick Syntax Summary
+
+| Operation | Syntax Example | Return Type |
+| :--- | :--- | :--- |
+| Create DataFrame | `pd.DataFrame(data)` | DataFrame |
+| Select Single Column | `df['Name']` | Series (1D) |
+| Select Multiple Columns | `df[['Name', 'Age']]` | DataFrame (2D) |
+| Add New Column | `df['New_Col'] = values_list` | In-place update |
+| Drop Column | `df.drop('Col', axis=1, inplace=True)` | Modifies original |
+| Select Single Row | `df.loc[0]` | Series (1D) |
+| Select Multiple Rows | `df.loc[[0, 1]]` | DataFrame (2D) |
+| Add New Row | `df.loc[len(df)] = [val1, val2, ...]` | In-place insert |
+| Slice Rows and Columns | `df.loc[[0, 1], ['City', 'Salary']]` | DataFrame |
+| Single Condition Filter | `df[df['Age'] > 30]` | DataFrame |
+| Multiple Conditions Filter | `df[(df['Age'] > 30) & (df['City'] == 'Chicago')]` | DataFrame |
