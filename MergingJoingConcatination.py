@@ -15,15 +15,15 @@ salaries = pd.DataFrame({
 })
 
 
-
+print("Inner Join: ")
 df=pd.merge(employees,salaries, on='employee_id')
 print(df)
 
-
+print("Outer Join: ")
 df2=pd.merge(employees,salaries, on='employee_id',how='outer')
 print(df2)
 
-
+print("Left Join: ")
 df3=pd.merge(employees,salaries, on='employee_id',how='left')
 print(df3)
 
@@ -42,12 +42,13 @@ data2 = pd.DataFrame({
     "C": ["C4", "C5", "C6", "C7"],
     "D": ["D4", "D5", "D6", "D7"]
 })
-
+print("Row wise concatenation: ")
 #row wise concatenation
 df5=pd.concat([data1,data2])
 print(df5)
 
 #column wise concatenation
+print("Column wise concatenation: ")
 df6=pd.concat([data1,data2],axis=1)
 print(df6)
 
@@ -65,6 +66,7 @@ data4 = pd.DataFrame({
     "D": ["D0", "D1", "D2", "D3"]
 })
 
+print("Join of 2 DataFrames: ")
 print(data3.join(data4.set_index('key'), on='key'))
 
 
